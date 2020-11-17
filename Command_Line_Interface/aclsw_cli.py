@@ -97,8 +97,7 @@ class ACLSwitchCLI(cmd.Cmd):
             print(cli_util.MSG_REDIRECT_ERR + str(err))
             return None
         if resp.status_code != 200:
-            print("Error fetching resource, HTTP {0} "
-                  "returned.".format(resp.status_code))
+            print("Error fetching resource, HTTP {0} returned.".format(resp.status_code))
             return None
         return resp.json()
 
