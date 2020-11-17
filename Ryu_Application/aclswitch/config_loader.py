@@ -14,13 +14,10 @@
 
 # Module imports
 import json
-import Ryu_Application.aclswitch.data_templates
+from Ryu_Application.aclswitch import data_templates
 import logging
 import sys
 import yaml
-
-__author__ = "Jarrod N. Bakker"
-__status__ = "Development"
 
 
 class ConfigLoader:

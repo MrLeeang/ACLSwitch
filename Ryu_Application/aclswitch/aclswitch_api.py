@@ -20,9 +20,6 @@ from Ryu_Application.aclswitch.policy.policy_manager import PolicyManager
 # Module imports
 import logging
 
-__author__ = "Jarrod N. Bakker"
-__status__ = "Development"
-
 
 class ACLSwitchAPI:
     """API for modifying and viewing the state of ACLSwitch.

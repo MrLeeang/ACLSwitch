@@ -19,9 +19,6 @@ from ryu.lib import hub
 import datetime as dt
 import logging
 
-__author__ = "Jarrod N. Bakker"
-__status__ = "Development"
-
 
 class FlowScheduler:
     """Class responsible for scheduling ACL rules to be deployed to
