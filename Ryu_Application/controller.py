@@ -15,12 +15,11 @@
 # Ryu and OpenFlow modules
 from ryu.app.ofctl import api
 from ryu.app.wsgi import WSGIApplication
-from ryu.base import app_manager
 from ryu.controller import ofp_event
 from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER, HANDSHAKE_DISPATCHER
 from ryu.controller.handler import set_ev_cls
-from authenticators.dot1xforwarder.dot1xforwarder import Dot1XForwarder
-from authenticators.capflow.CapFlow import CapFlow
+from Ryu_Application.authenticators.dot1xforwarder.dot1xforwarder import Dot1XForwarder
+from Ryu_Application.authenticators.capflow import CapFlow
 
 from ryu.controller import dpset
 

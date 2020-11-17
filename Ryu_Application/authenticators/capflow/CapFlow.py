@@ -17,7 +17,6 @@ import logging
 # Ryu - OpenFlow
 from ryu.controller.ofp_event import EventOFPPacketIn
 from ryu.controller.ofp_event import EventOFPSwitchFeatures
-from ryu.controller import ofp_event
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ipv4
 from ryu.lib.packet import tcp

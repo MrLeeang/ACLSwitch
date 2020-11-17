@@ -22,9 +22,6 @@ from modules.acl import ACL
 from modules.policy import Policy
 from modules import cli_util
 
-__author__ = "Jarrod N. Bakker"
-__status__ = "development"
-
 
 class ACLSwitchCLI(cmd.Cmd):
     """An interactive Command Line Interface (CLI) for ACLSwitch.
@@ -70,9 +67,9 @@ class ACLSwitchCLI(cmd.Cmd):
         print("ACLSwitch version: {0}".format(info["version"]))
         print("Number of ACL rules: {0}".format(info["num_rules"]))
         print("Number of policy domains: {0}".format(info[
-                                                        "num_policies"]))
+                                                         "num_policies"]))
         print("Number of registered switches: {0}".format(info[
-                                                        "num_switches"]))
+                                                              "num_switches"]))
 
     def do_exit(self, arg):
         """Close the program.
@@ -112,7 +109,7 @@ class ACLSwitchCLI(cmd.Cmd):
         print("\n")
         sys.exit(0)
 
+
 if __name__ == "__main__":
     cli = ACLSwitchCLI()
     cli.cmdloop()
-
