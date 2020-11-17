@@ -6,8 +6,6 @@
    from https://github.com/ederlf/CapFlow  and https://github.com/bakkerjarr/ACLSwitch
 """
 
-
-
 # licensing stuff
 
 # Python
@@ -32,7 +30,7 @@ from ryu.controller import dpset
 
 # Us
 import config
-from abc_ryu_app import ABCRyuApp
+from Ryu_Application.abc_ryu_app import ABCRyuApp
 from rest import UserController2
 
 
@@ -46,12 +44,12 @@ class Proto(object):
     TCP_HTTP = 80
     UDP_DNS = 53
 
+
 class CapFlowInterface():
 
     def __init__(self, cf, *args, **kwargs):
-
         self.cf = cf
-       
+
     def is_authed(self, ip):
         print self.cf.authenticate[ip]
         if self.cf.authenticate[ip] == {}:
@@ -82,6 +80,7 @@ class CapFlow(ABCRyuApp):
 
     def __init__(self, contr, *args, **kwargs):
         # super(CapFlow, self).__init__(*args, **kwargs)
+        super(CapFlow, self).__init__()
         self._contr = contr
         self._table_id_cf = 1
         self._supported = self._verify_contr_handlers()
@@ -92,26 +91,26 @@ class CapFlow(ABCRyuApp):
 
         self.next_table = 2
 
-        self.CRI = CapFlowInterface(self)	
+        self.CRI = CapFlowInterface(self)
 
         self._contr._wsgi.registory['UserController2'] = self.CRI
         UserController2.register(self._contr._wsgi)
-        
+
         min_lvl = logging.DEBUG
         console_handler = logging.StreamHandler()
         console_handler.setLevel(min_lvl)
-        #formatter = logging.Formatter("%(asctime)s - %(levelname)s - "
+        # formatter = logging.Formatter("%(asctime)s - %(levelname)s - "
         #                              "%(name)s - %(message)s")
         formatter = logging.Formatter("%(levelname)s - %(name)s - %("
                                       "message)s")
         console_handler.setFormatter(formatter)
         logging_config = {"min_lvl": min_lvl, "propagate":
-                                False, "handler": console_handler}
+            False, "handler": console_handler}
         self._logging = logging.getLogger(__name__)
         self._logging.setLevel(logging_config["min_lvl"])
         self._logging.propagate = logging_config["propagate"]
         self._logging.addHandler(logging_config["handler"])
-        
+
         self._logging.info("Started CapFlow...");
 
     def log_client_off(self, ip, user):
@@ -128,20 +127,20 @@ class CapFlow(ABCRyuApp):
             # this will probably delete the rules that allow the you have been logged off page
             match = parser.OFPMatch(eth_src=mac)
             self._contr.remove_flow(datapath, parser, self._table_id_cf,
-                                    ofproto.OFPFC_DELETE, 50000, 
+                                    ofproto.OFPFC_DELETE, 50000,
                                     match, out_port=ofproto.OFPP_ANY, out_group=ofproto.OFPG_ANY)
             match = parser.OFPMatch(eth_dst=mac)
             self._contr.remove_flow(datapath, parser, self._table_id_cf,
-                                    ofproto.OFPFC_DELETE, 50000, 
+                                    ofproto.OFPFC_DELETE, 50000,
                                     match, out_port=ofproto.OFPP_ANY, out_group=ofproto.OFPG_ANY)
             # send to controller rules
             match = parser.OFPMatch(eth_src=mac)
             self._contr.remove_flow(datapath, parser, self._table_id_cf,
-                                    ofproto.OFPFC_DELETE, 1000, 
+                                    ofproto.OFPFC_DELETE, 1000,
                                     match, out_port=ofproto.OFPP_ANY, out_group=ofproto.OFPG_ANY)
             match = parser.OFPMatch(eth_dst=mac)
             self._contr.remove_flow(datapath, parser, self._table_id_cf,
-                                    ofproto.OFPFC_DELETE, 1000, 
+                                    ofproto.OFPFC_DELETE, 1000,
                                     match, out_port=ofproto.OFPP_ANY, out_group=ofproto.OFPG_ANY)
 
     def new_client(self, ip, user):
@@ -185,15 +184,15 @@ class CapFlow(ABCRyuApp):
                                      eth_type=Proto.ETHER_ARP),
                                  [parser.OFPInstructionActions(
                                      ofproto.OFPIT_APPLY_ACTIONS,
-                                     [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER, ofproto.OFPCML_NO_BUFFER),]
-                                     )
+                                     [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER, ofproto.OFPCML_NO_BUFFER), ]
+                                 )
                                  ],
                                  0,
                                  self._table_id_cf,
                                  msg=msg,
                                  in_port=in_port
-                                )
-                     
+                                 )
+
         if self.deal_with_arp(datapath, msg, pkt, eth, in_port, nw_dst, nw_src):
             return
 
@@ -224,14 +223,14 @@ class CapFlow(ABCRyuApp):
                                      ip_proto=Proto.IP_UDP,
                                      udp_dst=src_port,
                                      udp_src=Proto.UDP_DNS
-                                     ),
+                                 ),
                                  [parser.OFPInstructionActions(
                                      ofproto.OFPIT_APPLY_ACTIONS,
                                      [parser.OFPActionOutput(in_port)])],
                                  0,
                                  self._table_id_cf,
-                                  in_port=out_port, idle_timeout=30, packet_out=False
-                                )
+                                 in_port=out_port, idle_timeout=30, packet_out=False
+                                 )
             # dns query packets
             self._contr.add_flow(datapath,
                                  2000,
@@ -249,7 +248,7 @@ class CapFlow(ABCRyuApp):
                                  0,
                                  self._table_id_cf,
                                  msg=msg, in_port=in_port, idle_timeout=30, packet_out=False
-                                )
+                                 )
 
         def install_http_nat(nw_src, nw_dst, ip_src, ip_dst, tcp_src, tcp_dst):
             """Adds flows that perform the http nat operation that redirects
@@ -272,7 +271,7 @@ class CapFlow(ABCRyuApp):
                 ipv4_dst=ip_src,
                 tcp_dst=tcp_src,
                 tcp_src=tcp_dst,
-                )
+            )
 
             self._contr.add_flow(datapath,
                                  1000,
@@ -282,12 +281,12 @@ class CapFlow(ABCRyuApp):
                                      [parser.OFPActionSetField(ipv4_src=ip_dst),
                                       parser.OFPActionSetField(eth_src=nw_dst),
                                       parser.OFPActionOutput(in_port)
-                                     ])
+                                      ])
                                  ],
                                  0,
                                  self._table_id_cf,
                                  idle_timeout=30
-                                )
+                                 )
 
             self._logging.debug("reverse match: %s", match)
 
@@ -301,7 +300,7 @@ class CapFlow(ABCRyuApp):
                 ipv4_dst=ip_dst,
                 tcp_dst=tcp_dst,
                 tcp_src=tcp_src,
-                )
+            )
             self._logging.info("forward match %s", match)
             # Forward rule
             self._contr.add_flow(datapath,
@@ -312,12 +311,12 @@ class CapFlow(ABCRyuApp):
                                      [parser.OFPActionSetField(ipv4_dst=config.AUTH_SERVER_IP),
                                       parser.OFPActionSetField(eth_dst=config.AUTH_SERVER_MAC),
                                       parser.OFPActionOutput(config.AUTH_SERVER_PORT)]
-                                     )
+                                 )
                                  ],
                                  0,
                                  self._table_id_cf,
                                  msg=msg, in_port=in_port, idle_timeout=30
-                                )
+                                 )
 
         def drop_unknown_ip(nw_src, nw_dst, ip_proto):
             """Adds flow that drops packets, that match the MAC source and destination and ip protocol.
@@ -329,12 +328,12 @@ class CapFlow(ABCRyuApp):
                                      eth_dst=nw_dst,
                                      eth_type=Proto.ETHER_IP,
                                      ip_proto=ip_proto,
-                                     ),
+                                 ),
                                  [],
                                  0,
                                  self._table_id_cf,
                                  msg=msg, in_port=in_port,
-                                )
+                                 )
 
         if eth.ethertype != Proto.ETHER_IP:
             self._logging.info("      not handling non-ip traffic")
@@ -347,16 +346,16 @@ class CapFlow(ABCRyuApp):
 
         if self.is_l2_traffic_allowed(nw_src, nw_dst, ip):
             self._logging.info("%s and %s is authenticated, installing bypass", nw_src, nw_dst)
-            
+
             self.approve_user(datapath, parser, nw_src, nw_dst)
             return
 
         # Client authenticated but destination not, just block it
         if self.authenticate[ip.src]:
             self._logging.info("Auth client sending to non-auth destination blocked! " +
-                                    str(ip.dst))
+                               str(ip.dst))
             self._logging.info("packet type %s, eth.dst %s, eth.src %s",
-                                    ip.proto, eth.dst, eth.src)
+                               ip.proto, eth.dst, eth.src)
             self._logging.info("ip.dst %s ip.src %s", ip.dst, ip.src)
             self._logging.info("gateway mac: %s", config.GATEWAY_MAC)
             return
@@ -394,8 +393,8 @@ class CapFlow(ABCRyuApp):
         if eth.ethertype == Proto.ETHER_ARP:
             arp_pkt = pkt.get_protocols(arp.arp)[0]
             self._logging.info("ARP packet: dpid %s, mac_src %s, arp_ip_src %s, arp_ip_dst %s, in_port %s",
-                                    datapath.id, nw_src, arp_pkt.src_ip,
-                                    arp_pkt.dst_ip, in_port)
+                               datapath.id, nw_src, arp_pkt.src_ip,
+                               arp_pkt.dst_ip, in_port)
 
             port = self.mac_to_port[datapath.id].get(nw_dst, datapath.ofproto.OFPP_FLOOD)
             out = datapath.ofproto_parser.OFPPacketOut(
@@ -403,7 +402,7 @@ class CapFlow(ABCRyuApp):
                 buffer_id=msg.buffer_id,
                 in_port=in_port,
                 actions=[datapath.ofproto_parser.OFPActionOutput(port)],
-                #actions=[datapath.ofproto_parser.OFPInstructionGotoTable(4)], #TODO
+                # actions=[datapath.ofproto_parser.OFPInstructionGotoTable(4)], #TODO
                 data=msg.data)
             if port == datapath.ofproto.OFPP_FLOOD:
                 self._logging.info("Flooding")
@@ -480,18 +479,18 @@ class CapFlow(ABCRyuApp):
             self.ip_to_mac[ip.dst] = nw_dst
             l2_traffic_is_allowed = True
         if self.authenticate[ip.src] is True and nw_dst == config.GATEWAY_MAC:
-           self.ip_to_mac[ip.src] = nw_src
-           l2_traffic_is_allowed = True
+            self.ip_to_mac[ip.src] = nw_src
+            l2_traffic_is_allowed = True
         if nw_src == config.GATEWAY_MAC and self.authenticate[ip.dst] is True:
             self.ip_to_mac[ip.dst] = nw_dst
             l2_traffic_is_allowed = True
 
         if self.authenticate[ip.src] is True and nw_dst == config.AUTH_SERVER_MAC:
-           self.ip_to_mac[ip.src] = nw_src
-           l2_traffic_is_allowed = True
+            self.ip_to_mac[ip.src] = nw_src
+            l2_traffic_is_allowed = True
         if nw_src == config.AUTH_SERVER_MAC and self.authenticate[ip.dst] is True:
-           self.ip_to_mac[ip.dst] = nw_dst
-           l2_traffic_is_allowed = True
+            self.ip_to_mac[ip.dst] = nw_dst
+            l2_traffic_is_allowed = True
 
         self._logging.debug("l2 traffic is allowed: %s", l2_traffic_is_allowed)
 
@@ -505,7 +504,7 @@ class CapFlow(ABCRyuApp):
         datapath = event.msg.datapath
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
-        
+
         # self._logging.info("Clear rule table")
 
         # command = ofproto.OFPFC_DELETE
@@ -539,7 +538,7 @@ class CapFlow(ABCRyuApp):
                              [parser.OFPInstructionGotoTable(self.next_table)],
                              0,
                              self._table_id_cf, packet_out=False
-                            )
+                             )
         self._contr.add_flow(datapath,
                              50000,
                              parser.OFPMatch(eth_src=nw_dst,
@@ -547,7 +546,7 @@ class CapFlow(ABCRyuApp):
                              [parser.OFPInstructionGotoTable(self.next_table)],
                              0,
                              self._table_id_cf, packet_out=False
-                            )
+                             )
 
     def get_app_name(self):
         """Returns the name of the application.
@@ -574,7 +573,7 @@ class CapFlow(ABCRyuApp):
                 failures = failures + (expected_h,)
         if not len(failures) == 0:
             self._logging.error("%s: The following OpenFlow protocol events are not "
-                  "supported by the controller:", self._APP_NAME)
+                                "supported by the controller:", self._APP_NAME)
             for f in failures:
                 self._logging.error("\t- %s", str(f))
             return False

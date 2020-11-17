@@ -207,7 +207,7 @@ class Dot1XForwarder(ABCRyuApp):
         self._logging.propagate = logging_config["propagate"]
         self._logging.addHandler(logging_config["handler"])
 
-        self._logging.info("Started Dot1XForwarder...");
+        self._logging.info("Started Dot1XForwarder...")
 
     def add_new_client(self, mac, user):
         """New user has been authenticated with the given MAC address.
